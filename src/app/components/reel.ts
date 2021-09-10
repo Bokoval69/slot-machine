@@ -6,8 +6,6 @@ export class Reel extends PIXI.Container {
     private static readonly reelMaxSpeed: number = 50;
     private static readonly inTime: number = 30;
     private static readonly outTime: number = 30;
-    private static readonly visibleTiles: number = 3;
-    private static readonly totalTiles: number = 5;
 
     public id: number;
     public tiles: Tile[];
@@ -20,7 +18,6 @@ export class Reel extends PIXI.Container {
     private timeStop: number;
     private spinning: boolean = false;
     private stopping: boolean = false;
-    private blurFilter: PIXI.filters.BlurYFilter;
 
     private finalOffset: number;
     private finalPosition: number;
@@ -30,7 +27,7 @@ export class Reel extends PIXI.Container {
 
         this.realWidth = width;
         this.realHeight = height;
-        this.tileHeight = height / Reel.visibleTiles; // 3 visible tiles
+        this.tileHeight = height / 3; // 3 visible tiles
         this.id = id;
 
         // mask
@@ -44,24 +41,17 @@ export class Reel extends PIXI.Container {
         this.container.mask = rectMask;
         this.addChild(this.container);
         this.tiles = [];
-        for (let i: number = 0; i < Reel.totalTiles; i++) {
+        for (let i: number = 0; i < 5; i++) {
             const tile: Tile = new Tile(width, this.tileHeight);
             tile.position.set(0, this.tileHeight * i - this.tileHeight);
             this.container.addChild(tile);
             this.tiles.push(tile);
         }
-
-        // instantiates blur filter
-        this.blurFilter = new PIXI.filters.BlurYFilter();
     }
 
     public spin(): void {
         this.time = 0;
         this.spinning = true;
-
-        // applies blur filter
-        this.blurFilter.strength = 0;
-        this.filters = [this.blurFilter];
     }
 
     public stop(): void {
@@ -83,11 +73,8 @@ export class Reel extends PIXI.Container {
             tile.y += speed;
         }
 
-        this.blurFilter.strength = speed * 0.3;
-
-        const limitY: number = this.realHeight + this.tileHeight;
         for (let i: number = this.tiles.length - 1; i >= 0; i--) {
-            if (this.container.y + this.tiles[i].y > limitY) {
+            if (this.container.y + this.tiles[i].y > 550) {
                 this.tiles[i].y = this.container.children[0].y - this.tileHeight;
                 this.container.addChildAt(this.tiles[i], 0);
                 this.tiles[i].swap();
@@ -117,9 +104,6 @@ export class Reel extends PIXI.Container {
         this.spinning = false;
         this.reorderTiles();
         this.emit("spincomplete", {target: this, id: this.id});
-
-        // removes blur filter
-        this.filters = null;
     }
 
     private reorderTiles(): void {

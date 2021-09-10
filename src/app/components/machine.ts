@@ -5,26 +5,27 @@ import { Reel } from "./reel";
 
 export class Machine extends PIXI.Container {
 
+    private static readonly width: number = 790;
+    private static readonly height: number = 470;
     private reels: Reel[];
     private currentReel: number;
 
-    constructor(width: number, height: number, numberOfReels: number = 5) {
+    constructor() {
         super();
 
+        const numberOfReels: number = 5;
+        const slicedWidth: number = Machine.width / numberOfReels;
         this.reels = [];
 
-        // draws a border
         const border: PIXI.Graphics = new PIXI.Graphics();
         border.lineStyle(10, 0xffffff, 1);
 
-        // adds reels
-        const slicedWidth: number = width / numberOfReels;
         for (let i: number = 0; i < numberOfReels; i++) {
-            const reel: Reel = new Reel(slicedWidth, height, i);
+            const reel: Reel = new Reel(slicedWidth, Machine.height, i);
             reel.position.set(slicedWidth * i, 0);
             this.addChild(reel);
             this.reels.push(reel);
-            border.drawRect(slicedWidth * i, 0, slicedWidth, height);
+            border.drawRect(slicedWidth * i, 0, slicedWidth, Machine.height);
             reel.on("spincomplete", this.onReelSpinComplete.bind(this));
         }
         this.addChild(border);
